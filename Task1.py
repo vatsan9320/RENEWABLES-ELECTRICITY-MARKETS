@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Single hour copper plate
-hour = 1 #we look at the results for hour 1
+hour = 18 #we look at the results for hour 1
 
 #import data
 data=all_data.get_data()
@@ -104,14 +104,19 @@ print("profit", profit, "utility", utility)
 
 # Data
 
-demand_quantities=[2650.5*x/100 for x in [3.8, 3.4, 6.3, 2.6, 2.5, 4.8, 4.4, 6.0, 6.1, 6.8, 9.3, 6.8, 11.1, 3.5, 11.7, 6.4, 4.5, 0]]
-demand_bidding_prices=[25, 22, 15.4, 12.5, 13, 14, 24, 15, 12.8, 17.8, 29.3, 28, 16.9, 30, 18, 16, 21, 0]
+# demand_quantities=[2650.5*x/100 for x in [3.8, 3.4, 6.3, 2.6, 2.5, 4.8, 4.4, 6.0, 6.1, 6.8, 9.3, 6.8, 11.1, 3.5, 11.7, 6.4, 4.5, 0]]
+# demand_bidding_prices=[25, 22, 15.4, 12.5, 13, 14, 24, 15, 12.8, 17.8, 29.3, 28, 16.9, 30, 18, 16, 21, 0]
+# supply_quantities = [152, 152, 350, 591, 60, 155, 155, 400, 400, 300, 300, 350, 
+#                      2*66.02668138964893, 2*69.90705836674121, 2*69.09000109053993, 
+#                      2*60.93791955818926, 2*64.88591062635679, 2*62.98944854324062]
+# generators_bidding_prices = [13.32, 13.32, 20.7, 20.93, 26.11, 10.52, 6.02, 5.47, 0, 0, 
+#                   10.52, 10.89, 0, 0, 0, 0, 0, 0]
 
-supply_quantities = [152, 152, 350, 591, 60, 155, 155, 400, 400, 300, 300, 350, 
-                     2*66.02668138964893, 2*69.90705836674121, 2*69.09000109053993, 
-                     2*60.93791955818926, 2*64.88591062635679, 2*62.98944854324062]
-generators_bidding_prices = [13.32, 13.32, 20.7, 20.93, 26.11, 10.52, 6.02, 5.47, 0, 0, 
-                  10.52, 10.89, 0, 0, 0, 0, 0, 0]
+demand_quantities= [data["load"]["System demand (MW)"][hour-1]*percentage/100 for i, percentage in enumerate(data["node_demand"]["percentage of system load"])]+[0]
+demand_bidding_prices=data["node_demand"]["Bid price"]+[0]
+
+supply_quantities = data["generation_unit"]["Pmax (MW)"]+[data["wind_farm"][f"wind_farm {i}"][hour-1]*wind_farm_capacity for i in model.init_wind_farm]
+generators_bidding_prices = data["generation_unit"]["Ci"]+[0]*6
 
 # Plot the supply curve
 sorted_indices = np.argsort(generators_bidding_prices) #Sort in ascending order
