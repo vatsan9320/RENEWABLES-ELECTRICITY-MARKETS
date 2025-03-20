@@ -42,6 +42,7 @@ def get_data():
     node_demand = {
     "Load #": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
     "Node":   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 18, 19, 20],
+    "Load distribution peak" : [np.max(load_data["System demand (MW)"])*x/100 for x in [3.8, 3.4, 6.3, 2.6, 2.5, 4.8, 4.4, 6.0, 6.1, 6.8, 9.3, 6.8, 11.1, 3.5, 11.7, 6.4, 4.5]],
     "percentage of system load": [3.8, 3.4, 6.3, 2.6, 2.5, 4.8, 4.4, 6.0, 6.1, 6.8, 9.3, 6.8, 11.1, 3.5, 11.7, 6.4, 4.5 ],
     "Bid price": [25, 22, 15.4, 12.5, 13, 14, 24, 15, 12.8, 17.8, 29.3, 28, 16.9, 30, 18, 16, 21] #only for hour 1 (for other hours, calculated in task2)
     }
@@ -108,3 +109,4 @@ test=get_data()
 
 print(test["transmission_line"]["Capacity (MVA)"][33])
 print(range(4))
+print(test["generation_unit"]["Ci"])

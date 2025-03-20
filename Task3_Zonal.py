@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #import data
+hour=1
+
 data=all_data.get_data()
 Pmax_D=np.max(data["load"]["System demand (MW)"])
 wind_farm_capacity=200
@@ -39,7 +41,7 @@ model.price_conv=Param(model.init_conv_G, initialize={i+1: price for i, price in
 
 model.price_wind_farm=Param(model.init_wind_farm, initialize = 0)
 
-model.Pmax_demand=Param(model.init_demand, initialize={i+1: price for i, price in enumerate(data["node_demand"]["Load distribution peak"])} )
+model.Pmax_demand=Param(model.init_demand, initialize={i+1: data["load"]["System demand (MW)"][hour-1]*percentage/100 for i, percentage in enumerate(data["node_demand"]["percentage of system load"])} )
 model.demand_bidding_prices=Param(model.init_demand, initialize={i+1: price for i, price in enumerate(data["node_demand"]["Bid price"])})
 
 #To calculate the ATC of each power transfer
@@ -74,7 +76,7 @@ def capacity_rule_conv_G(model, i):
 model.capacity_conv_G_constraint = Constraint(model.init_conv_G, rule=capacity_rule_conv_G)
 
 def capacity_rule_wind_farm(model, i):
-    return model.p_wind_farm[i] <= np.mean(data["wind_farm"][f"wind_farm {i}"])*wind_farm_capacity
+    return model.p_wind_farm[i] <= data["wind_farm"][f"wind_farm {i}"][hour-1]*wind_farm_capacity
 model.capacity_wind_farm_constraint = Constraint(model.init_wind_farm, rule=capacity_rule_wind_farm)
 
 def max_load_demand(model, j):
