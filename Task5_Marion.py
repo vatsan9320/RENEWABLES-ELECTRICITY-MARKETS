@@ -1,0 +1,112 @@
+from pyomo.environ import *
+import all_data
+import numpy as np
+import matplotlib.pyplot as plt
+
+hour=1
+load_curt_price=500 #€/MWh
+conv_gen_outage=8 #the conv gen number 8 has an outage
+#import data
+
+
+data=all_data.get_data()
+Pmax_D=np.max(data["load"]["System demand (MW)"])
+wind_farm_capacity=200
+
+#create a model
+model = ConcreteModel()
+
+# Sets
+model.init_conv_G = Set(initialize=[e+1 for e in range(12)])
+model.init_wind_farm = Set(initialize=[e+1 for e in range(6)])
+model.init_demand=Set(initialize=[e+1 for e in range(len(data["node_demand"]["Load #"]))])
+
+
+#Declare variables
+
+model.p_up_conv_G = Var(model.init_conv_G, within=NonNegativeReals, initialize=0)
+
+model.p_down_conv_G = Var(model.init_conv_G, within=NonNegativeReals, initialize=0)
+
+model.total_curtailment=Var(within=NonNegativeReals, initialize=0)
+
+##Parameters
+model.Pmax_convG=Param(model.init_conv_G, initialize={i+1: pmax for i, pmax in enumerate(data["generation_unit"]["Pmax (MW)"])})
+model.price_conv=Param(model.init_conv_G, initialize={i+1: price for i, price in enumerate(data["generation_unit"]["Ci"])})
+
+model.price_wind_farm=Param(model.init_wind_farm, initialize = 0)
+
+
+#### RESULTS FROM TASK 1 during HOUR 9
+
+DA_h9=10.52
+PS_h9={'load': [95.683, 85.611, 158.632, 65.467, 62.949, 120.863, 110.791, 151.078, 153.596, 171.222, 234.172, 171.222, 279.495, 88.129, 294.603, 161.15, 113.309], 
+    'conventional generators': [0.0, 0.0, 0.0, 0.0, 0.0, 155.0, 155.0, 400.0, 400.0, 300.0, 236.985, 0.0], 
+    'wind farms': [163.297, 141.239, 142.903, 139.414, 140.617, 143.52]}  
+DS_total=np.sum(PS_h9["load"])
+
+# Objective function : Minimization of balancing cost
+
+
+def objective_rule(model):
+    return (sum((DA_h9+10/100*model.price_conv[k])*model.p_up_conv_G[k] for k in model.init_conv_G) 
+            + load_curt_price*model.total_curtailment
+            - sum((DA_h9-15/100*model.price_conv[i]) * model.p_down_conv_G[i] for i in model.init_conv_G))
+model.balancing_cost = Objective(rule=objective_rule, sense=minimize)
+
+
+
+
+# Constraints
+def balance(model):
+    return (sum(model.p_up_conv_G[k] - model.p_down_conv_G[k] for k in model.init_conv_G) 
+            + model.total_curtailment
+            == PS_h9["conventional generators"][conv_gen_outage-1]
+             + 15/100*sum(PS_h9["wind farms"][i] for i in range(3))
+             - 10/100*sum(PS_h9["wind farms"][j] for j in range(3,6)))
+model.balance_constraint = Constraint(rule=balance)
+
+def max_up(model, i):
+    return model.p_up_conv_G[i] <= model.Pmax_convG[i] - PS_h9["conventional generators"][i-1]
+model.max_up_constraint = Constraint(model.init_conv_G, rule=max_up)
+
+def max_demand_curtailment(model):
+    return model.total_curtailment <= DS_total
+model.max_curtailment_constraint = Constraint(rule=max_demand_curtailment)
+
+def max_down(model, i):
+    return model.p_down_conv_G[i] <= PS_h9["conventional generators"][i-1]
+model.max_down_constraint = Constraint(model.init_conv_G, rule=max_down)
+
+model.constraint_fix_p_up_conv_G8 = Constraint(expr=model.p_up_conv_G[8] == 0)
+model.constraint_fix_p_down_conv_G8 = Constraint(expr=model.p_down_conv_G[8] == 0)
+
+#Dual variables
+model.dual = Suffix(direction=Suffix.IMPORT)
+
+# Create a solver 
+solver = SolverFactory("gurobi", solver_io="python")  # Make sure Gurobi is installed and properly configured
+
+# Solve the model
+solution = solver.solve(model, tee=True)
+
+model.display()
+
+# Store the results
+results = {}
+results["curtailment"] = round(value(model.total_curtailment))
+results["up"] = [round(value(model.p_up_conv_G[key]),3) for key in model.init_conv_G]
+results["down"] = [round(value(model.p_down_conv_G[key]),3) for key in model.init_conv_G]
+results["wind farm compared to PS"] = [round(15/100*PS_h9["wind farms"][i],3) for i in range(3)]+[round(-10/100*PS_h9["wind farms"][i],3) for i in range(3,6)]
+print(results)
+print("Balancing cost =", round(model.balancing_cost(), 3))
+
+#print(solution)
+
+# Extract the market-clearing price 
+if solution.solver.termination_condition == TerminationCondition.optimal:
+    price = model.dual[model.balance_constraint]
+    print(f"Balancing price = : {price:.2f}")
+else:
+    print("Solver did not find an optimal solution. Balancing price cannot be calculated.")
+
