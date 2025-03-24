@@ -94,7 +94,7 @@ results_reserve["up"] = [round(value(model.rU[key]),3) for key in model.rU]
 results_reserve["down"] = [round(value(model.rD[key]),3) for key in model.rD]
 # results["wind farms"] = [round(value(model.p_wind_farm[key]),3) for key in model.p_wind_farm]
 print(results_reserve)
-# print("Social Welfare =", round(model.social_welfare(), 3))
+print("Reserve cost =", round(model.reservemarket(), 3))
 
 #print(solution)
 
@@ -196,3 +196,7 @@ else:
 
 print(f"Down reserve price: {down_price:.2f}")
 print(f"Up reserve price: {up_price:.2f}")
+
+print("Social Welfare =", round(modelDA.social_welfare(), 3))
+print("Reserve cost =", round(model.reservemarket(), 3))
+print("Social welfare - Reserve cost", round(modelDA.social_welfare()-model.reservemarket(), 3))
