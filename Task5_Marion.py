@@ -110,3 +110,54 @@ if solution.solver.termination_condition == TerminationCondition.optimal:
 else:
     print("Solver did not find an optimal solution. Balancing price cannot be calculated.")
 
+# Scheduled power for Generator 8 in DA Market
+p_scheduled_G8 = PS_h9["conventional generators"][conv_gen_outage - 1]
+
+# Power lost due to outage
+p_lost_G8 = p_scheduled_G8
+
+# Penalty: Generator 8 must pay the balancing price for lost power
+penalty_G8 = round(p_lost_G8 * price, 3)
+
+# Day-Ahead Market Profits (Fixed)
+profit = {}
+profit["conventional generators"] = [
+    round(prod * DA_h9 - prod * price, 3) if i != conv_gen_outage - 1 else 0
+    for i, (prod, price) in enumerate(zip(PS_h9["conventional generators"], data["generation_unit"]["Ci"]))
+]
+profit["wind farms"] = [round(value * DA_h9, 3) for value in results["wind farm compared to PS"]]
+
+# Balancing Market Profits (Two-Pricing Scheme)
+profit_balancing_two_price = {}
+profit_balancing_two_price["conventional generators"] = [
+    round(prod * (price - DA_h9), 3) if i != conv_gen_outage - 1 else -penalty_G8
+    for i, (prod, price) in enumerate(zip(results["down"], data["generation_unit"]["Ci"]))
+]
+profit_balancing_two_price["wind farms"] = [round(value * price, 3) for value in results["wind farm compared to PS"]]
+
+# Balancing Market Profits (One-Pricing Scheme) - Same price for up/down
+profit_balancing_one_price = {}
+profit_balancing_one_price["conventional generators"] = [
+    round((prod_up - prod_down) * price, 3) if i != conv_gen_outage - 1 else -penalty_G8
+    for i, (prod_up, prod_down, price) in enumerate(zip(results["up"], results["down"], data["generation_unit"]["Ci"]))
+]
+profit_balancing_one_price["wind farms"] = [round(value * price, 3) for value in results["wind farm compared to PS"]]
+
+# Display Profits
+print("\nDay-Ahead Market Profits:", profit)
+print("\nBalancing Market Profits (One-Pricing Scheme):", profit_balancing_one_price)
+print("\nBalancing Market Profits (Two-Pricing Scheme):", profit_balancing_two_price)
+
+# Compare Imbalance Settlement Schemes
+one_price_scheme = profit_balancing_one_price
+two_price_scheme = profit_balancing_two_price
+
+print("\nComparison of Imbalance Settlement Schemes:")
+print("One-Price Scheme:", one_price_scheme)
+print("Two-Price Scheme:", two_price_scheme)
+
+# Conclusion
+if sum(one_price_scheme["conventional generators"]) > sum(two_price_scheme["conventional generators"]):
+    print("One-price scheme benefits balancing service providers more.")
+else:
+    print("Two-price scheme provides a more stable settlement.")
