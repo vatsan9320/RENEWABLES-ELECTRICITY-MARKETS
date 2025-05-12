@@ -1,4 +1,4 @@
-import all_data 
+import Task_1_all_data 
 import numpy as np
 import pandas as pd
 from pyomo.environ import *
@@ -15,7 +15,7 @@ from utils import create_all_scenarios
 
 ## Data
 
-data=all_data.get_data()
+data=Task_1_all_data.get_data()
 nbr_in_sample=200
 
 ## Create a model

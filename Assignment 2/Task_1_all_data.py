@@ -6,14 +6,14 @@ def get_data():
     ## Wind power scenarios
     nbr_wind_power_scenario=20
     wind_data={}
-    file_path_wind = "Wind_data.csv"
+    file_path_wind = "Assignment 2\Wind_data.csv"
     for i in range(nbr_wind_power_scenario):
         wind_data[f"Sc{i+1}"] = pd.read_csv(file_path_wind, sep=";")["Capacity_factor"].iloc[i*24:(i+1)*24].tolist()
 
     ## Day Ahead Market price scenarios
     nbr_DA_price_scenario=20
     price_data={}
-    file_path_price = "DA_price_data copy.csv"
+    file_path_price = "Assignment 2\DA_price_data copy.csv"
     for i in range(nbr_DA_price_scenario):
         price_data[f"Sc{i+1}"] = pd.read_csv(file_path_price, sep=";")["DA price (€/MWh)"].iloc[i*24:(i+1)*24].tolist()
     
@@ -31,6 +31,5 @@ def get_data():
     misc["Coeff deficit"] = 1.25
     misc["Coeff excess"] = 0.85
 
-    return {"wind_scenarios" : wind_data, "DA_price_scenarios" : price_data, "power_scenarios" : power_data, "misc" : misc}
 
-#print(get_data()["power_scenarios"])
+    return {"wind_scenarios" : wind_data, "DA_price_scenarios" : price_data, "power_scenarios" : power_data, "misc" : misc}

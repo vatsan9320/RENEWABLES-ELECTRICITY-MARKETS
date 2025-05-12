@@ -1,4 +1,3 @@
-import all_data 
 import numpy as np
 import pandas as pd
 from pyomo.environ import *
@@ -67,3 +66,15 @@ print("OS mean one price", OS_average_expected_profit_one_price, "OS mean two pr
 
 
 print("Execution time", time.time() - start, "seconds")
+print(in_sample_analysis["Fold1"]["two price"]["results"]["p_DA"].values())
+
+### Plot a cumulative distributive of profit across the scenarios
+x=np.arange(24)
+
+plt.plot(x,in_sample_analysis["Fold1"]["one price"]["results"]["p_DA"].values(), label="One price")
+plt.plot(x,in_sample_analysis["Fold1"]["two price"]["results"]["p_DA"].values(), label="Two price")
+plt.title('One price VS Two price')
+plt.xlabel("Hour")
+plt.legend()
+plt.ylabel("Wind production (MWh)")
+plt.show()

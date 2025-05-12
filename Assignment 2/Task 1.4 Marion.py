@@ -10,7 +10,7 @@
 # icant changes in the risk-averse offering decisions. This task does not require any ex-post
 # out-of-sample or cross-validation analyses
 # ############
-import all_data 
+import Task_1_all_data 
 import numpy as np
 import pandas as pd
 from pyomo.environ import *
@@ -20,7 +20,7 @@ alpha=0.90
 
 ## Data
 
-data=all_data.get_data()
+data=Task_1_all_data.get_data()
 nbr_in_sample=10
 
 ## Construction of the In-Sample Scenarios
