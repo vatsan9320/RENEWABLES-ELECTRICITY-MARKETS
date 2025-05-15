@@ -17,6 +17,3 @@ def get_data():
 
     return {"load": load_data}
 
-
-# a=get_data()
-# print(len(a["load"]))

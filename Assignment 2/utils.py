@@ -19,7 +19,7 @@ def create_all_scenarios(k:int):
     list_scenarios = np.array(list(product(listwind, listprice, listrealpower)))  #len =1600
 
     #k = 8
-    kf = KFold(n_splits=k, shuffle=True, random_state=None)
+    kf = KFold(n_splits=k, shuffle=False, random_state=None)
 
     all_scenario={}
 
@@ -35,6 +35,7 @@ def create_all_scenarios(k:int):
             in_sample[f"Sc{i+1}"]["DA_price"]=data["DA_price_scenarios"][f"Sc{list_scenarios[test_index][i][1]}"]
             in_sample[f"Sc{i+1}"]["power"]=data["power_scenarios"][f"Sc{list_scenarios[test_index][i][2]}"]
             in_sample[f"Sc{i+1}"]["wind"]=[data["wind_scenarios"][f"Sc{list_scenarios[test_index][i][0]}"][j]*data["misc"]["WF capacity (MW)"] for j in range(24)]
+            
         
         for i in range(len(train_index)):  # for all the scenarios of out of the sample in this fold =1400
         

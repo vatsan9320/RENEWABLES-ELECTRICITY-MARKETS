@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 from pyomo.environ import *
 import matplotlib.pyplot as plt
+import time
+
+start = time.time()
+
+
+from utils import create_all_scenarios
 
 
 # ### Task 1.2
@@ -18,27 +24,27 @@ import matplotlib.pyplot as plt
 data=Task_1_all_data.get_data()
 nbr_in_sample=200
 
-## Construction of the In-Sample Scenarios
-in_sample={}
-i=1
-while len(in_sample)<nbr_in_sample:
+# ## Construction of the In-Sample Scenarios
+# in_sample={}
+# i=1
+# while len(in_sample)<nbr_in_sample:
     
-    scen=(data["wind_scenarios"][f"Sc{np.random.randint(1, len(data['wind_scenarios']))}"], 
-          data["DA_price_scenarios"][f"Sc{np.random.randint(1,len(data['DA_price_scenarios']))}"], 
-          data["power_scenarios"][f"Sc{np.random.randint(1,len(data['power_scenarios']))}"] )
+#     scen=(data["wind_scenarios"][f"Sc{np.random.randint(1, len(data['wind_scenarios']))}"], 
+#           data["DA_price_scenarios"][f"Sc{np.random.randint(1,len(data['DA_price_scenarios']))}"], 
+#           data["power_scenarios"][f"Sc{np.random.randint(1,len(data['power_scenarios']))}"] )
 
-    if scen not in in_sample.values():
-        in_sample[f"Sc{i}"]={}   
-        in_sample[f"Sc{i}"]["wind"]=[scen[0][j]*data["misc"]["WF capacity (MW)"] for j in range(len(scen[0]))]
-        in_sample[f"Sc{i}"]["DA_price"]=scen[1]
-        in_sample[f"Sc{i}"]["power"]=scen[2]
+#     if scen not in in_sample.values():
+#         in_sample[f"Sc{i}"]={}   
+#         in_sample[f"Sc{i}"]["wind"]=[scen[0][j]*data["misc"]["WF capacity (MW)"] for j in range(len(scen[0]))]
+#         in_sample[f"Sc{i}"]["DA_price"]=scen[1]
+#         in_sample[f"Sc{i}"]["power"]=scen[2]
 
-        i+=1
+#         i+=1
 
 ###################################################################################################
-##### OTHER WAY TO CREATE THE IN SAMPLE
-# all_scenarios=create_all_scenarios()
-# in_sample=all_scenarios["Fold1"]["In Sample"][0]
+#### OTHER WAY TO CREATE THE IN SAMPLE
+all_scenarios=create_all_scenarios(8)
+in_sample=all_scenarios["Fold1"]["In Sample"][0]
 ###################################################################################################
 
 ## Create a model
@@ -74,7 +80,7 @@ model.realtime_power =  Param(model.init_time, model.init_scenarios,
                                             for t in model.init_time for w in model.init_scenarios})
 
 ## Objective function
-# Quand realtime_power=1 --> System excess
+# When realtime_power=1 --> System excess
 #                     =0 --> System deficit
 ## Equivalent à la l'objective funciton avec imbalance : prend en compte les REWARDS et PUNITIONS dans les cas où le system est en excès et déficit
 
@@ -114,6 +120,7 @@ solver = SolverFactory("gurobi", solver_io="python")  # Make sure Gurobi is inst
 # Solve the model
 solution = solver.solve(model, tee=True)
 
+print("Execution time", time.time() - start, "seconds")
 print("Two prices Expected profit:", model.expected_profit())
 
 for c in model.component_objects(Constraint, active=True):

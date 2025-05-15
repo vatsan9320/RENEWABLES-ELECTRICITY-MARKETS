@@ -15,6 +15,10 @@ import numpy as np
 import pandas as pd
 from pyomo.environ import *
 import matplotlib.pyplot as plt
+import time
+
+start = time.time()
+
 
 alpha=0.90
 
