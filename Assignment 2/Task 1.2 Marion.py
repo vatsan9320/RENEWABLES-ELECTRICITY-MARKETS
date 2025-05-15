@@ -171,7 +171,7 @@ for w in model.init_scenarios:
                                 for t in model.init_time))
 print("Profit for each scenario",profits[:5])
 print("Total profit", model.expected_profit(), sum(profits))  ## C'est bon, les 2 sont égaux
-
+print("Execution time", time.time() - start, "seconds")
 ## Plot a cumulative distributive of profit across the scenarios
 x=np.arange(nbr_in_sample)
 

@@ -19,7 +19,7 @@ def create_all_scenarios(k:int):
     list_scenarios = np.array(list(product(listwind, listprice, listrealpower)))  #len =1600
 
     #k = 8
-    kf = KFold(n_splits=k, shuffle=False, random_state=None)
+    kf = KFold(n_splits=k, shuffle=True, random_state=42)
 
     all_scenario={}
 

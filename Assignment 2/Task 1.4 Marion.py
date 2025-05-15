@@ -16,6 +16,7 @@ import pandas as pd
 from pyomo.environ import *
 import matplotlib.pyplot as plt
 import time
+from utils import create_all_scenarios
 
 start = time.time()
 
@@ -25,28 +26,34 @@ alpha=0.90
 ## Data
 
 data=Task_1_all_data.get_data()
-nbr_in_sample=10
+nbr_in_sample=200
 
-## Construction of the In-Sample Scenarios
-def create_in_sample():
-    in_sample={}
-    i=1
-    while len(in_sample)<nbr_in_sample:
+# ## Construction of the In-Sample Scenarios
+# def create_in_sample():
+#     in_sample={}
+#     i=1
+#     while len(in_sample)<nbr_in_sample:
         
-        scen=(data["wind_scenarios"][f"Sc{np.random.randint(1, len(data['wind_scenarios']))}"], 
-            data["DA_price_scenarios"][f"Sc{np.random.randint(1,len(data['DA_price_scenarios']))}"], 
-            data["power_scenarios"][f"Sc{np.random.randint(1,len(data['power_scenarios']))}"] )
+#         scen=(data["wind_scenarios"][f"Sc{np.random.randint(1, len(data['wind_scenarios']))}"], 
+#             data["DA_price_scenarios"][f"Sc{np.random.randint(1,len(data['DA_price_scenarios']))}"], 
+#             data["power_scenarios"][f"Sc{np.random.randint(1,len(data['power_scenarios']))}"] )
 
-        if scen not in in_sample.values():
-            in_sample[f"Sc{i}"]={}   
-            in_sample[f"Sc{i}"]["wind"]=[scen[0][j]*data["misc"]["WF capacity (MW)"] for j in range(len(scen[0]))]
-            in_sample[f"Sc{i}"]["DA_price"]=scen[1]
-            in_sample[f"Sc{i}"]["power"]=scen[2]
+#         if scen not in in_sample.values():
+#             in_sample[f"Sc{i}"]={}   
+#             in_sample[f"Sc{i}"]["wind"]=[scen[0][j]*data["misc"]["WF capacity (MW)"] for j in range(len(scen[0]))]
+#             in_sample[f"Sc{i}"]["DA_price"]=scen[1]
+#             in_sample[f"Sc{i}"]["power"]=scen[2]
 
-            i+=1
-    return in_sample
+#             i+=1
+#     return in_sample
 
-in_sample_scenarios=create_in_sample()
+# in_sample_scenarios=create_in_sample()
+
+###################################################################################################
+#### OTHER WAY TO CREATE THE IN SAMPLE : To always have the same ones
+all_scenarios=create_all_scenarios(8)
+in_sample_scenarios=all_scenarios["Fold1"]["In Sample"][0]
+###################################################################################################
 
 def oneprice_risk_aversion(in_sample, beta:NonNegativeReals):
 
@@ -321,6 +328,7 @@ def twoprice_risk_aversion(in_sample, beta:NonNegativeReals):
 
     return {"results":results,  "profits": profits, "Expected profit + beta*CVaR":model2.objective()}
 
+print("Execution time", time.time() - start, "seconds")
 
 oneprice_expected_profit, twoprice_expected_profit=[], []
 oneprice_CVaR, twoprice_CVaR=[], []
@@ -340,18 +348,28 @@ for beta in beta_list:
     twoprice_profit_each_sc.append(twoprice_risk_results["profits"])
 
 plt.plot(oneprice_CVaR, oneprice_expected_profit, label="One price", marker='o')
-plt.plot(twoprice_CVaR, twoprice_expected_profit, label="Two price", marker='o')
 plt.legend()
 plt.xlabel('CVaR (€)')
 plt.ylabel('Expected profit (€)')
-plt.title('Efficient frontier')
+plt.title('One price: Efficient frontier')
 # Add the beta value for each point
 for i, beta in enumerate(beta_list):
     plt.annotate(f"\u03B2={beta}", (oneprice_CVaR[i], oneprice_expected_profit[i]),
                  textcoords="offset points", xytext=(5, 5), ha='center')
+plt.show()
+
+
+plt.plot(twoprice_CVaR, twoprice_expected_profit, label="Two price", marker='o')
+plt.legend()
+plt.xlabel('CVaR (€)')
+plt.ylabel('Expected profit (€)')
+plt.title(' Two price: Efficient frontier')
+# Add the beta value for each point
+for i, beta in enumerate(beta_list):
     plt.annotate(f"\u03B2={beta}", (twoprice_CVaR[i], twoprice_expected_profit[i]),
                  textcoords="offset points", xytext=(5, 5), ha='center')
 plt.show()
+
 
 
 ##### CDF CURVES
@@ -377,12 +395,12 @@ plt.show()
 
 
 #ONE PROFIT VS TWO PROFIT
-plt.hist(twoprice_profit_each_sc[0], density=True, bins=30, cumulative=True, histtype='step', label="TWO \u03B2=0")
+plt.hist(twoprice_profit_each_sc[0], density=True, bins=30, cumulative=True, histtype='step', label="Two price \u03B2=0")
 
-plt.hist(twoprice_profit_each_sc[7], density=True, bins=30, cumulative=True, histtype='step', label="TWO\u03B2=10")
-plt.hist(oneprice_profit_each_sc[0], density=True, bins=30, cumulative=True, histtype='step', label="ONE \u03B2=0")
+plt.hist(twoprice_profit_each_sc[7], density=True, bins=30, cumulative=True, histtype='step', label="Two price \u03B2=10")
+plt.hist(oneprice_profit_each_sc[0], density=True, bins=30, cumulative=True, histtype='step', label="One price \u03B2=0")
 
-plt.hist(oneprice_profit_each_sc[7], density=True, bins=30, cumulative=True, histtype='step', label="ONE \u03B2=10")
+plt.hist(oneprice_profit_each_sc[7], density=True, bins=30, cumulative=True, histtype='step', label="One price \u03B2=10")
 plt.legend()
 plt.title("Cumulative distribution function")
 plt.xlabel("Expected profit (€)")
