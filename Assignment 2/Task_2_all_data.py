@@ -1,5 +1,6 @@
 import numpy as np
 
+np.random.seed(42)
 def get_data():
 
 # Data Generation for Future Stochastic Load: Randomly generate 300 consumption load
@@ -8,6 +9,7 @@ def get_data():
 # 35 kW. 
 
 ## Data Generation for Future Stochastic Load
+
     nbr_load_profiles=300
     load_data={}
     for i in range(nbr_load_profiles):
@@ -16,4 +18,3 @@ def get_data():
             load_data[f"Profile{i+1}"].append(round(np.random.uniform(max(220,load_data[f"Profile{i+1}"][t]-35), min(600,load_data[f"Profile{i+1}"][t]+35)),2))     
 
     return {"load": load_data}
-
