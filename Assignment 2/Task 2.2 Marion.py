@@ -23,6 +23,8 @@ nbr_in_sample=100
 nbr_seconds=60
 epsilon=10/100
 ## Construction of the In-Sample Scenarios
+np.random.seed=42
+
 def create_in_sample():
     in_sample={}
     i=1
@@ -280,13 +282,10 @@ def CVaR_approximation(in_sample):
 
 
 ALSO_results=ALSO_X_MILP(in_sample_profiles)
+
 #ALSO_relaxed_results=ALSO_X_relaxed(in_sample_profiles)
 CVaR_approximation_results=CVaR_approximation(in_sample_profiles)
 
-
-# print("ALSO-X MILP", ALSO_results["c_up"])
-# #print("Relaxed LP", ALSO_relaxed_results["c_up"])
-# print("CVaR approximation", CVaR_approximation_results["c_up"])
 def P90_requirement():
     ALSO_shortfall=[]
     CVaR_shortfall=[]
@@ -307,4 +306,3 @@ def P90_requirement():
         f"P90 Satisfied (overbidding proba <= 10%): {'Yes' if proba_reserve_shortfall_CVaR <= epsilon*100 else 'No'}")
 
 print(P90_requirement())
-print("CVaR method + conservative : on respecte toujours P90 alors qu'avec ALSO, on est autour des 10%, parfois au dessus, parfois en-dessous")

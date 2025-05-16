@@ -33,12 +33,6 @@ def get_data():
     for i in range(nbr_power_scenario):
         power_data[f"Sc{i+1}"] = np.random.binomial(1, 0.5, 24).tolist()
 
-    # ## We fix the power data scenarios to always have the same results
-    # power_data={'Sc1': [1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0], 
-    #             'Sc2': [0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1], 
-    #             'Sc3': [0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0], 
-    #             'Sc4': [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0]}
-
     ## Miscellaneous
     misc={}
     misc["WF capacity (MW)"] = 500

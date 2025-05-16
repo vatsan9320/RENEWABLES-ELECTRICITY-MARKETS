@@ -22,6 +22,7 @@ nbr_in_sample=100
 nbr_seconds=60
 epsilon=10/100
 ## Construction of the In-Sample Scenarios
+np.random.seed=42
 def create_in_sample():
     in_sample={}
     i=1
@@ -267,21 +268,12 @@ def CVaR_approximation(in_sample):
     
 
 ALSO_results=ALSO_X_MILP(in_sample_profiles)
-
-#ALSO_relaxed_results=ALSO_X_relaxed(in_sample_profiles)
-
 CVaR_approximation_results=CVaR_approximation(in_sample_profiles)
-#CVaR_ksi_positif_approximation_results=CVaR_approximation_ksi_positif(in_sample_profiles)
 
 print("Execution time", time.time() - start, "seconds")
-#print("Relaxed LP", ALSO_relaxed_results["c_up"])
+
 print("ALSO-X MILP", ALSO_results["c_up"])
 print("CVaR approximation", CVaR_approximation_results["c_up"], "beta", CVaR_approximation_results["beta"])
-#print("CVaR approximation ksi >0", CVaR_ksi_positif_approximation_results["c_up"], "beta", CVaR_ksi_positif_approximation_results["beta"])
 
-# print("D'après le Lecture 10, j'ai l'impression que ksi est un réel (et pas que >0)\
-#       En plus, le résultat obtenu avec ksi réel est meilleur que celui ksi >0\
-#       Par contre j'ai pas la moindre idée de ce que ksi et beta représentent. La VaR ? CVaR ?\
-#       Et pourquoi pour CVaR avec ksi réel, c_up - beta = c_up du MILP avec ALSO ????")
-
+#ALSO_relaxed_results=ALSO_X_relaxed(in_sample_profiles)
 #print("Relaxed LP", ALSO_relaxed_results["c_up"], "MILP", ALSO_results["c_up"])

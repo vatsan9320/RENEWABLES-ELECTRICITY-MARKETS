@@ -1,6 +1,6 @@
 import numpy as np
 
-np.random.seed(42)
+np.random.seed(420)
 def get_data():
 
 # Data Generation for Future Stochastic Load: Randomly generate 300 consumption load

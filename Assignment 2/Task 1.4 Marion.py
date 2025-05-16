@@ -334,7 +334,7 @@ oneprice_expected_profit, twoprice_expected_profit=[], []
 oneprice_CVaR, twoprice_CVaR=[], []
 oneprice_profit_each_sc, twoprice_profit_each_sc=[],[]
 
-beta_list=[0,0.05,0.1,0.5,1,2,5,10,100]
+beta_list=[0, 0.1, 0.5, 1, 2, 5, 10, 100]
 
 for beta in beta_list:
     oneprice_risk_results=oneprice_risk_aversion(in_sample_scenarios, beta)
