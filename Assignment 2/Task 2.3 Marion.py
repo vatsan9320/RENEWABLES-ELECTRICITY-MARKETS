@@ -120,10 +120,10 @@ def ALSO_X_MILP(in_sample, epsilon): #Computationnally expensive when many sampl
 
 
 ALSO_results={}
-ALSO_optimal_bid=[]
+
 ALSO_shortfall={}
 proba_reserve_shortfall={}
-
+expected_shortfall={}
 for eps in epsilon:
     ALSO_results[f"Epsilon={eps}"]=ALSO_X_MILP(in_sample_profiles, eps)
     ALSO_shortfall[f"Epsilon={eps}"]=[]
@@ -131,7 +131,7 @@ for eps in epsilon:
         ALSO_shortfall[f"Epsilon={eps}"].append(ALSO_results[f"Epsilon={eps}"]["c_up"]*np.ones(60)-out_of_sample_profiles[f"Profile{i+1}"])
         
     proba_reserve_shortfall[f"Epsilon={eps}"]=np.sum(np.array(ALSO_shortfall[f"Epsilon={eps}"]) > 0)/len(ALSO_shortfall[f"Epsilon={eps}"])/60*100
-    
+    expected_shortfall[f"Epsilon={eps}"]=np.sum(np.array(ALSO_shortfall[f"Epsilon={eps}"]) > 0)
     
    
  
@@ -139,6 +139,7 @@ for eps in epsilon:
 print("Epsilon", epsilon)
 print("ALSO-X MILP", [ALSO_results[f"Epsilon={eps}"]["c_up"] for eps in epsilon])
 print("Proba of reserve shortfall=overbidding for each eps",[proba_reserve_shortfall[f"Epsilon={eps}"] for eps in epsilon])
+print("Expected shortfall=overbidding for each eps",[expected_shortfall[f"Epsilon={eps}"] for eps in epsilon])
 
 
 # plt.plot(epsilon, [ALSO_results[f"Epsilon={eps}"]["c_up"] for eps in epsilon], label="Optimal Reserve Bid (kW ??)")
@@ -161,6 +162,27 @@ ax2 = ax1.twinx()  # Second axis y
 color2 = 'tab:orange'
 ax2.set_ylabel("Overbidding Probability (%)", color=color2)
 ax2.plot([eps*100 for eps in epsilon], [proba_reserve_shortfall[f"Epsilon={eps}"] for eps in epsilon], label="Overbidding Probability", color='tab:orange')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Add combined legend
+fig.tight_layout()  # To avoid legend overlapping
+plt.show()
+
+
+fig, ax1 = plt.subplots()
+
+# Axis for ALSO_results
+color1 = 'tab:blue'
+ax1.set_xlabel("Allowed frequence of reserve shortfall (%)")
+ax1.set_ylabel("Optimal Reserve Bid (kW)", color=color1)
+ax1.plot([eps*100 for eps in epsilon], [ALSO_results[f"Epsilon={eps}"]["c_up"] for eps in epsilon], label="Optimal Reserve Bid", color='tab:blue')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Axis for expected reserve_shortfall
+ax2 = ax1.twinx()  # Second axis y
+color2 = 'tab:orange'
+ax2.set_ylabel("Expected shortfall (kW)", color=color2)
+ax2.plot([eps*100 for eps in epsilon], [expected_shortfall[f"Epsilon={eps}"] for eps in epsilon], label="Expected shortfall", color='tab:orange')
 ax2.tick_params(axis='y', labelcolor=color2)
 
 # Add combined legend
