@@ -12,6 +12,9 @@ import Task_2_all_data
 import numpy as np
 from pyomo.environ import *
 import matplotlib.pyplot as plt
+import time
+
+start = time.time()
 
 ## Data
 data=Task_2_all_data.get_data()
@@ -130,7 +133,7 @@ for eps in epsilon:
     for i in range(len(out_of_sample_profiles)):
         ALSO_shortfall[f"Epsilon={eps}"].append(ALSO_results[f"Epsilon={eps}"]["c_up"]*np.ones(60)-out_of_sample_profiles[f"Profile{i+1}"])
         
-    proba_reserve_shortfall[f"Epsilon={eps}"]=np.sum(np.array(ALSO_shortfall[f"Epsilon={eps}"]) > 0)/len(ALSO_shortfall[f"Epsilon={eps}"])/60*100
+    proba_reserve_shortfall[f"Epsilon={eps}"]=np.sum(np.array(ALSO_shortfall[f"Epsilon={eps}"]) > 0)/(len(ALSO_shortfall[f"Epsilon={eps}"])*60)*100
     expected_shortfall[f"Epsilon={eps}"]=np.sum(np.array(ALSO_shortfall[f"Epsilon={eps}"]) > 0)
     
    
@@ -141,7 +144,7 @@ print("ALSO-X MILP", [ALSO_results[f"Epsilon={eps}"]["c_up"] for eps in epsilon]
 print("Proba of reserve shortfall=overbidding for each eps",[proba_reserve_shortfall[f"Epsilon={eps}"] for eps in epsilon])
 print("Expected shortfall=overbidding for each eps",[expected_shortfall[f"Epsilon={eps}"] for eps in epsilon])
 
-
+print("Execution time", time.time() - start, "seconds")
 # plt.plot(epsilon, [ALSO_results[f"Epsilon={eps}"]["c_up"] for eps in epsilon], label="Optimal Reserve Bid (kW ??)")
 # plt.plot(epsilon, [proba_reserve_shortfall[f"Epsilon={eps}"] for eps in epsilon], label="Overbidding probability")
 # plt.xlabel("Epsilon")

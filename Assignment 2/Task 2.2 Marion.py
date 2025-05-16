@@ -306,3 +306,4 @@ def P90_requirement():
         f"P90 Satisfied (overbidding proba <= 10%): {'Yes' if proba_reserve_shortfall_CVaR <= epsilon*100 else 'No'}")
 
 print(P90_requirement())
+print("Execution time", time.time() - start, "seconds")
